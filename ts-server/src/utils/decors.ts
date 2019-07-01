@@ -25,6 +25,12 @@ const decorate = (method: HTTPMethod, path: string, options: RouterOptions = {},
     return (target, property: string) => {
         //处理成异步
         process.nextTick(() => {
+            console.log(target);
+            console.log('---------------------');
+            
+            console.log(property);
+            
+            
             //添加中间件
             const mws = [];
             if (options.middlewares) {
@@ -41,9 +47,8 @@ const decorate = (method: HTTPMethod, path: string, options: RouterOptions = {},
 }
 
 const method = method => (path: string, options?: RouterOptions) => decorate(method, path, options, router)
-const get = method('get');
-console.log(get);
-export {get};
+export const get = method('get');
+//get：(path, options) => decorate(method, path, options, router)
 export const post = method('post');
 export const put = method('put');
 export const del = method('del');

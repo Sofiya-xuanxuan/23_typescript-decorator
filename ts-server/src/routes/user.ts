@@ -2,6 +2,8 @@ import * as Koa from 'koa'
 import { get, post, middlewares } from '../utils/decors'
 import model from '../model/user'
 
+console.log(9999);
+
 const users = [{ name: 'tom' }];
 const api = {
     findByName(name) {
@@ -16,6 +18,22 @@ const api = {
         })
     }
 }
+//(target, property) => {
+//     //处理成异步
+//     process.nextTick(() => {
+//         //添加中间件
+//         const mws = [];
+//         if (options.middlewares) {
+//             mws.push(...options.middlewares);
+//         }
+//         if (target.middlewares) {
+//             mws.push(...target.middlewares);
+//         }
+//         mws.push(target[property]);
+//         const url = options.prefix ? options.prefix + path : path;
+//         router[method](url, target[property]);
+//     });
+// }
 //类装饰器
 @middlewares([
     async function guard(ctx: Koa.Context, next: () => Promise<any>) {
