@@ -1,8 +1,8 @@
 import * as Koa from 'koa'
-import { get, post, middlewares } from '../utils/decors'
+import { get, post, mylogs, protologs,middlewares } from '../utils/decors'
 import model from '../model/user'
-
-console.log(9999);
+import { log } from 'util';
+import { AfterBulkRestore } from 'sequelize-typescript';
 
 const users = [{ name: 'tom' }];
 const api = {
@@ -51,7 +51,8 @@ export default class User {
      * @router get /api/user/list
      * @param {*} ctx 
      */
-
+    
+    @mylogs
     @get('/users')
     public async list(ctx: Koa.Context) {
         const users = await model.findAll()

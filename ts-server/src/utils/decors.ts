@@ -25,18 +25,18 @@ const decorate = (method: HTTPMethod, path: string, options: RouterOptions = {},
     return (target, property: string) => {
         //处理成异步
         process.nextTick(() => {
-            console.log(target);
+            console.log(target);//User {middlewares:[]}
             console.log('---------------------');
-            
-            console.log(property);
-            
-            
+
+            console.log(property);//  list  add
+
+
             //添加中间件
             const mws = [];
             if (options.middlewares) {
                 mws.push(...options.middlewares)
             }
-            if(target.middlewares) {
+            if (target.middlewares) {
                 mws.push(...target.middlewares)
             }
             mws.push(target[property])
@@ -66,3 +66,23 @@ export const middlewares = (middlewares: Koa.middlewares[]) => {
         target.prototype.middlewares = middlewares;
     }
 }
+
+//日志应用和切面AOP
+function mylogs(target, name, descriptor) {
+    var oldValue = descriptor.value;
+
+    descriptor.value = function () {
+        console.log(`Calling "${name}" with`, arguments);
+        return oldValue.apply(null, arguments);
+    }
+    return descriptor;
+}
+
+function protologs(beforefn) {
+    var _self = this; //保存原函数引用
+    return function () { //返回包含了原函数和新函数的"代理函数"
+        beforefn.apply(this, arguments); //执行新函数，修正this
+        return _self.apply(this, arguments); //执行原函数
+    }
+}
+export { mylogs,protologs } 
