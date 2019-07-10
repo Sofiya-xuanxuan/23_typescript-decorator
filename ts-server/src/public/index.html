@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id='app'>
+        <label for="">name</label>
+        <input type="text" name='name' v-model='form.name'>
+        <label for="">age</label>
+        <input type="text" name='age' v-model='form.age'>
+        <button v-on:click="add">add</button>
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                form:{
+                    name: 'sofiya',
+                    age: 19
+                }
+            },
+            methods: {
+                async add() {
+                    await axios.post('/users', {
+                        name: this.form.name,
+                        age: this.form.age
+                    })
+                },
+                async logout() {
+                await axios.post('/logout')
+                },
+                async getUser() {
+                await axios.get('/getUser')
+                }
+            }
+        });
+    </script>
+</body>
+</html>

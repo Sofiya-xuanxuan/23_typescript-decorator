@@ -1,7 +1,19 @@
 import * as glob from 'glob'//用于文件夹遍历
 import * as Koa from 'koa'
 import * as KoaRouter from 'koa-router'
+import * as  Parameter from 'parameter'
+import * as bouncer from 'koa-bouncer'
 
+
+console.log('bouncer', bouncer);
+
+console.log(bouncer.middleware().toString());
+
+
+const app = new Koa()
+app.use(bouncer.middleware())
+
+console.log('app', app);
 
 type HTTPMethod = 'get' | 'put' | 'del' | 'post' | 'patch'
 
@@ -33,15 +45,17 @@ const decorate = (method: HTTPMethod, path: string, options: RouterOptions = {},
 
             //添加中间件
             const mws = [];
+
             if (options.middlewares) {
                 mws.push(...options.middlewares)
             }
+
             if (target.middlewares) {
                 mws.push(...target.middlewares)
             }
             mws.push(target[property])
             const url = options.prefix ? options.prefix + path : path
-            router[method](url, target[property])
+            router[method](url, ...mws)
         })
     }
 }
@@ -67,22 +81,47 @@ export const middlewares = (middlewares: Koa.middlewares[]) => {
     }
 }
 
-//日志应用和切面AOP
-function mylogs(target, name, descriptor) {
+export const myvalidate = (target, name, descriptor) => {
     var oldValue = descriptor.value;
+    console.log('尼尼尼', target, name, descriptor);
 
-    descriptor.value = function () {
+    descriptor.value = function (ctx) {
+        console.log('ctx', ctx);
+
+        ctx.validateBody('name')
+            .required('name required')
+            .isString()
+            .trim()
         console.log(`Calling "${name}" with`, arguments);
         return oldValue.apply(null, arguments);
     }
     return descriptor;
+
 }
 
-function protologs(beforefn) {
-    var _self = this; //保存原函数引用
-    return function () { //返回包含了原函数和新函数的"代理函数"
-        beforefn.apply(this, arguments); //执行新函数，修正this
-        return _self.apply(this, arguments); //执行原函数
+const validateRule = paramPart => rule => {
+    return function (target, name, descriptor) {
+        const oldValue = descriptor.value
+        descriptor.value = function () {
+            console.log(11111,arguments[0]);
+            
+            const ctx = arguments[0]
+            console.log(999999 + ctx);
+            console.log(paramPart);
+            
+            const p = new Parameter()
+            const data = ctx[paramPart]
+
+            console.log(8888,data);
+            
+            const errors = p.validate(rule, data)
+            console.log('error', errors)
+            if (errors) throw new Error(JSON.stringify(errors))
+            return oldValue.apply(null, arguments);
+        }
+        return descriptor;
     }
 }
-export { mylogs,protologs } 
+
+export const querystring = validateRule('query')
+export const body = validateRule('body')
